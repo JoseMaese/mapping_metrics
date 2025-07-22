@@ -104,7 +104,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Chamfer distance PCD vs PLY")
     parser.add_argument("--gt",   type=Path, default=base / "gt" / "new-college-29-01-2020-1cm-resolution-1stSection.ply",
                         help="Ground-truth cloud (PLY)")
-    parser.add_argument("--pred", type=Path, default=base / "pcd" / "grid_data.pcd",
+    parser.add_argument("--pred", type=Path, default=base / "pcd" / "college.pcd",
                         help="Predicted cloud (PCD)")
     parser.add_argument("--voxel", type=float, default=0.05,
                         help="Voxel size for down-sampling (m)")
