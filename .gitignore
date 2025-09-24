@@ -1,2 +1,4 @@
 /gt
-/pcd
+/__pycache__
+/college
+/results

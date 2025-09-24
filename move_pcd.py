@@ -1,24 +1,25 @@
+#!/usr/bin/env python3
 import open3d as o3d
 import numpy as np
 
-# Cargar y preparar
-# pc_gt = o3d.io.read_point_cloud("cow_gt/cow_gt.ply")
-# mesh = o3d.io.read_triangle_mesh("cow/mesh_cow.stl")
+# --- Cargar datos ---
+pc_gt  = o3d.io.read_point_cloud("gt/new-college-29-01-2020-1cm-resolution-1stSection.ply")
+mesh   = o3d.io.read_triangle_mesh("college/mesh.stl")
+pc_pred = mesh.sample_points_uniformly(5_000)  # pred para mover
 
-pc_gt = o3d.io.read_point_cloud("college_gt/new-college-29-01-2020-1cm-resolution-1stSection.ply")
-mesh = o3d.io.read_triangle_mesh("college/mesh_college_0.05.stl")
+# --- ROI y downsample para visualización ---
+bb = pc_pred.get_axis_aligned_bounding_box()
+bb = bb.scale(2.0, bb.get_center())            # ampliar 2× la caja
+pc_gt_view = pc_gt.crop(bb)
+pc_gt_view = pc_gt_view.voxel_down_sample(0.05)  # 5 cm para ir rápido
 
-# pc_gt = o3d.io.read_point_cloud("cow_gt/cow_gt.ply")
-# mesh = o3d.io.read_triangle_mesh("cow/mesh_cow.stl")
-
-pc_pred = mesh.sample_points_uniformly(100_000)
-
-pc_gt.paint_uniform_color([0, 1, 0])   # Verde
-pc_pred.paint_uniform_color([1, 0, 0]) # Rojo
+# Colores
+pc_gt_view.paint_uniform_color([0, 1, 0])   # verde
+pc_pred.paint_uniform_color([1, 0, 0])      # rojo
 
 T = np.eye(4)
 
-# Utilidades
+# --- Utilidades ---
 def rot_matrix(axis, angle):
     axis = np.asarray(axis, dtype=float)
     axis /= np.linalg.norm(axis)
@@ -37,14 +38,16 @@ def translation_matrix(dx=0, dy=0, dz=0):
     T[:3, 3] = [dx, dy, dz]
     return T
 
-# Movimiento interactivo
+# --- Interactivo ---
 def run_interactive():
-    global pc_pred, T
+    global pc_pred, T, pc_gt_view
 
     vis = o3d.visualization.VisualizerWithKeyCallback()
-    vis.create_window("Mover PCD", width=1280, height=720)
-    vis.add_geometry(pc_gt)
+    vis.create_window("Mover PCD", width=960, height=540)
+    vis.add_geometry(pc_gt_view)
     vis.add_geometry(pc_pred)
+    opt = vis.get_render_option()
+    opt.point_size = 2.0
 
     def update_and_refresh(transform):
         nonlocal vis
@@ -56,8 +59,8 @@ def run_interactive():
         vis.update_renderer()
         return False
 
-    step = 0.02
-    angle = np.deg2rad(0.2)
+    step = 0.05
+    angle = np.deg2rad(1)
 
     # Traducción
     vis.register_key_callback(ord("W"), lambda v: update_and_refresh(translation_matrix(0, 0, +step)))
@@ -75,25 +78,21 @@ def run_interactive():
     vis.register_key_callback(ord("U"), lambda v: update_and_refresh(rot_matrix([0, 0, 1], +angle)))
     vis.register_key_callback(ord("O"), lambda v: update_and_refresh(rot_matrix([0, 0, 1], -angle)))
 
-    # Imprimir matriz
+    # Imprimir matriz y salir
     vis.register_key_callback(ord("Z"), lambda v: (print("\nMatriz actual:\n", T), False)[1])
-    # Salida
     vis.register_key_callback(ord("X"), lambda v: (print("\nSaliendo. Matriz final:\n", T), vis.destroy_window())[1])
 
     print("""
 Controles:
-  w/s → mover eje Z    (arriba/abajo)
-  a/d → mover eje X    (izquierda/derecha)
-  q/e → mover eje Y    (adelante/atrás)
-
-  j/l → rotar en Y     (yaw)
-  i/k → rotar en X     (pitch)
-  u/o → rotar en Z     (roll)
-
-  z   → imprimir matriz actual
+  w/s → mover eje Z
+  a/d → mover eje X
+  q/e → mover eje Y
+  j/l → rotar en Y
+  i/k → rotar en X
+  u/o → rotar en Z
+  z   → imprimir matriz
   x   → salir
 """)
-
     vis.run()
 
 run_interactive()
