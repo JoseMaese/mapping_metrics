@@ -1,12 +1,7 @@
 <h1 align="center"><a href="https://JoseMaese.github.io/mapping_metrics/" style="text-decoration:none;color:inherit;">Mapping Metrics</a></h1>
 
 <p align="center">
-  <a href="https://JoseMaese.github.io/mapping_metrics/" style="
-    display:inline-block;padding:10px 18px;
-    border:2px solid #003771;border-radius:999px;
-    color:#003771;text-decoration:none;font-weight:600;">
-    Visit website →
-  </a>
+<strong>👉 <a href="https://JoseMaese.github.io/mapping_metrics/">Visit the project website</a> 👈</strong>
 </p>
 
 This repository provides Python utilities to evaluate **runtime efficiency** and **3D reconstruction quality** for TSDF-based mapping methods.
