@@ -11,6 +11,8 @@
 <meta property="og:description" content="Runtime and mapping quality evaluation for TSDF methods with reproducible metrics and Docker workflow." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://JoseMaese.github.io/mapping_metrics/" />
+<!-- Important for color schemes -->
+<meta name="color-scheme" content="light dark" />
 
 <style>
 /* Palette: Universidad Pablo de Olavide */
@@ -29,8 +31,9 @@
   --link-hover: var(--accent);
 }
 
+/* Auto dark only if no manual override */
 @media (prefers-color-scheme: dark){
-  :root{
+  :root:not([data-theme]){
     --bg: #0b0f14;
     --fg: #e6edf3;
     --muted: #9aa4b2;
@@ -42,6 +45,23 @@
     --link: #77b1ff;
     --link-hover: var(--accent);
   }
+}
+
+/* Manual overrides via toggle */
+:root[data-theme="dark"]{
+  --bg: #0b0f14;
+  --fg: #e6edf3;
+  --muted: #9aa4b2;
+  --border: #2a3340;
+  --code-bg:#0f1622;
+  --code-fg:#e6edf3;
+  --card-bg:#0d121a;
+  --shadow: 0 6px 18px rgba(0,0,0,.35);
+  --link: #77b1ff;
+  --link-hover: var(--accent);
+}
+:root[data-theme="light"]{
+  /* uses the default :root light vars */
 }
 
 *{box-sizing:border-box}
@@ -85,6 +105,16 @@ body{
   text-underline-offset: 3px;
 }
 .nav a:hover{ background: rgba(0,55,113,.06); color: var(--link-hover); }
+
+/* Theme toggle button */
+.theme-toggle{
+  border:1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--link);
+  padding:8px 12px; border-radius:10px; cursor:pointer;
+  margin-left:8px;
+}
+.theme-toggle:hover{ background: rgba(250,186,19,.12); color: var(--brand); }
 
 /* Hero */
 .hero{
@@ -158,7 +188,7 @@ code{ background: var(--code-bg); color: var(--code-fg); border-radius:6px; padd
 }
 .block-head .label{ color: var(--muted); font-size: .95rem; }
 .copy{
-  border:1px solid var(--border); background:transparent; color:var(--link);
+  border:1px solid var(--border); background:transparent; color: var(--link);
   border-radius:10px; padding:6px 10px; cursor:pointer;
 }
 .copy:hover{ background: rgba(250,186,19,.12); color: var(--brand); }
@@ -179,7 +209,7 @@ details + details{ margin-top: 10px; }
 summary{ cursor: pointer; font-weight:600; color: var(--brand); }
 summary::marker { color: var(--accent); }
 
-/* Small elegance touches */
+/* Small touches */
 em{ color: inherit }
 a{ color: var(--link); }
 a:hover{ color: var(--link-hover); }
@@ -199,6 +229,7 @@ a:hover{ color: var(--link-hover); }
       <a href="#docker">Docker</a>
       <a href="https://github.com/JoseMaese/mapping_metrics">Code</a>
       <a href="https://robotics.upo.es/">Service Robotics Lab</a>
+      <button id="theme-toggle" class="theme-toggle" type="button">Toggle theme</button>
     </div>
   </nav>
 </header>
@@ -306,6 +337,16 @@ cd mapping_metrics</code></pre>
 </footer>
 
 <script>
+  // Apply saved theme on load
+  (function(){
+    const root = document.documentElement;
+    const key = 'mm-theme';
+    const saved = localStorage.getItem(key);
+    if (saved === 'light' || saved === 'dark') {
+      root.setAttribute('data-theme', saved);
+    }
+  })();
+
   // Copy buttons
   document.querySelectorAll('.copy').forEach(btn=>{
     btn.addEventListener('click', async ()=>{
@@ -332,6 +373,19 @@ cd mapping_metrics</code></pre>
       }
     });
   });
+
+  // Theme toggle button
+  (function(){
+    const btn = document.getElementById('theme-toggle');
+    const root = document.documentElement;
+    const key = 'mm-theme';
+    btn?.addEventListener('click', ()=>{
+      const cur = root.getAttribute('data-theme');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem(key, next);
+    });
+  })();
 </script>
 
 </body>
