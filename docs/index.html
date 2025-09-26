@@ -1,134 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mapping Metrics</title>
+
+<!-- SEO / Social -->
+<meta name="description" content="Python utilities to evaluate runtime efficiency and 3D reconstruction quality for TSDF-based mapping methods." />
+<meta property="og:title" content="Mapping Metrics" />
+<meta property="og:description" content="Runtime and mapping quality evaluation for TSDF methods with reproducible metrics and Docker workflow." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://JoseMaese.github.io/mapping_metrics/" />
+
 <style>
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: #ffffff;
-  color: #333;
-  line-height: 1.7;
+:root{
+  --bg: #ffffff;
+  --fg: #222;
+  --muted: #666;
+  --brand: #2f6feb;
+  --border: #e6e8eb;
+  --code-bg: #f6f8fa;
+  --code-fg: #111;
+  --card-bg:#fff;
+  --shadow: 0 6px 18px rgba(0,0,0,.06);
 }
-header {
-  text-align: center;
-  padding: 60px 20px 40px 20px;
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg: #0e1116;
+    --fg: #e6edf3;
+    --muted: #9ea7b3;
+    --brand: #539bf5;
+    --border: #30363d;
+    --code-bg:#161b22;
+    --code-fg:#e6edf3;
+    --card-bg:#0f141b;
+    --shadow: 0 6px 18px rgba(0,0,0,.35);
+  }
 }
-header h1 {
-  margin: 0 0 15px 0;
-  font-size: 2.6em;
-  font-weight: 600;
-  color: #333;
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font: 16px/1.7 system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  background: var(--bg);
+  color: var(--fg);
 }
-header p {
+
+/* Header */
+.site-header{
+  position: sticky; top:0; z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: saturate(150%) blur(6px);
+}
+.nav{
+  max-width: 1040px; margin: 0 auto; padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+}
+.brand{
+  display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--fg);
+}
+.brand .logo{
+  width:28px; height:28px; border-radius:8px; background:var(--brand); display:inline-block;
+  box-shadow: var(--shadow);
+}
+.brand .title{ font-weight:650; letter-spacing:.2px; }
+
+.nav a{
+  color: var(--fg); text-decoration:none; padding:8px 10px; border-radius:8px;
+}
+.nav a:hover{ background: var(--code-bg); }
+
+/* Hero */
+.hero{
+  max-width:1040px; margin: 40px auto 10px; padding: 0 20px;
+}
+.hero h1{
+  margin: 12px 0 4px; font-size: clamp(28px, 3.4vw, 40px); line-height:1.15; letter-spacing:.2px;
+}
+.hero p{
+  color: var(--muted); margin: 8px 0 0;
+}
+.quick-links{
+  margin-top:16px; display:flex; flex-wrap:wrap; gap:10px;
+}
+.btn{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--border); color:var(--fg); text-decoration:none;
+  padding:10px 12px; border-radius:10px; background: var(--card-bg);
+  box-shadow: var(--shadow); transition: transform .12s ease, box-shadow .12s ease;
+}
+.btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,0,0,.10); }
+.btn .dot{ width:8px; height:8px; border-radius:50%; background: var(--brand); }
+
+/* Sections */
+.section{ max-width:1040px; margin: 28px auto; padding: 0 20px; }
+.section h2{
+  font-size: clamp(20px, 2.2vw, 26px);
+  margin: 28px 0 10px;
+}
+.lead{ color: var(--muted); }
+
+/* Cards */
+.grid{
+  display:grid; gap:16px;
+  grid-template-columns: repeat(12, 1fr);
+}
+.card{
+  grid-column: span 12;
+  border:1px solid var(--border); border-radius:14px; background: var(--card-bg);
+  box-shadow: var(--shadow); padding:18px;
+}
+@media(min-width: 860px){
+  .span-6{ grid-column: span 6; }
+}
+
+/* Code blocks */
+pre{
+  background: var(--code-bg); color: var(--code-fg);
+  border:1px solid var(--border); border-radius:12px;
+  padding: 14px 14px 12px; overflow:auto; margin: 8px 0 0;
+}
+code{ background: var(--code-bg); color: var(--code-fg); border-radius:6px; padding: 1px 6px; }
+
+/* Header for code blocks */
+.block-head{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
   margin-top: 10px;
-  font-size: 1.1em;
 }
-header a {
-  color: #4a69bd;
-  text-decoration: none;
-  margin: 0 10px;
+.block-head .label{ color: var(--muted); font-size: .95rem; }
+.copy{
+  border:1px solid var(--border); background:transparent; color:var(--fg);
+  border-radius:10px; padding:6px 10px; cursor:pointer;
 }
-header a:hover {text-decoration: underline;}
-section {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 25px 40px 25px;
+.copy:hover{ background: var(--code-bg); }
+
+/* Footer */
+.footer{
+  margin-top:32px; padding: 20px; border-top: 1px solid var(--border); color: var(--muted);
+  text-align:center;
 }
-h2 {
-  color: #4a69bd;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 6px;
-  margin-top: 50px;
+.footer a{ color: var(--brand); text-decoration:none; }
+.footer a:hover{ text-decoration:underline; }
+
+/* Details/summary */
+details{
+  border:1px solid var(--border); border-radius:12px; padding: 10px 12px; background: var(--card-bg);
 }
-pre {
-  background: #f7f7f7;
-  color: #222;
-  padding: 12px;
-  border-radius: 6px;
-  overflow-x: auto;
-  font-size: 0.95em;
-}
-code {
-  background: #f7f7f7;
-  padding: 2px 5px;
-  border-radius: 4px;
-}
-footer {
-  text-align: center;
-  padding: 30px 10px;
-  color: #666;
-  border-top: 1px solid #e0e0e0;
-  margin-top: 60px;
-}
-footer a {color:#4a69bd;text-decoration:none;}
-footer a:hover{text-decoration:underline;}
+details + details{ margin-top: 10px; }
+summary{ cursor: pointer; font-weight:600; }
+summary::marker { color: var(--brand); }
+kbd{border:1px solid var(--border); border-bottom-width:2px; border-radius:6px; padding:2px 6px; background:var(--code-bg); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size: .95em; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>Mapping Metrics</h1>
-  <p>
-    <a href="https://github.com/JoseMaese/mapping_metrics">Code</a> ·
-    <a href="https://robotics.upo.es/">Service Robotics Lab</a>
-  </p>
+<header class="site-header">
+  <nav class="nav">
+    <a class="brand" href="#">
+      <span class="logo"></span>
+      <span class="title">Mapping Metrics</span>
+    </a>
+    <div>
+      <a href="#overview">Overview</a>
+      <a href="#evaluation">Evaluation</a>
+      <a href="#docker">Docker</a>
+      <a href="https://github.com/JoseMaese/mapping_metrics">Code</a>
+      <a href="https://robotics.upo.es/">Service Robotics Lab</a>
+    </div>
+  </nav>
 </header>
 
-<section>
-  <h2>Overview</h2>
-  <p>
-    This repository provides Python utilities to evaluate <strong>runtime efficiency</strong> and
-    <strong>3D reconstruction quality</strong> for TSDF-based mapping methods.
-    The <a href="https://arxiv.org/html/2509.20081v1">DB-TSDF paper</a> uses these
-    evaluation utilities. They are adapted from the metric-evaluation procedure introduced in
-    <a href="https://github.com/PRBonn/SHINE_mapping">SHINE-Mapping</a>.
-  </p>
+<main>
+  <section class="hero" id="overview">
+    <h1>Modern and Reproducible TSDF Evaluation</h1>
+    <p class="lead">
+      Python utilities to measure <strong>runtime efficiency</strong> and <strong>3D reconstruction quality</strong>
+      for TSDF-based mapping methods. Used in the <a href="https://arxiv.org/html/2509.20081v1">DB-TSDF paper</a> and
+      adapted from the metric-evaluation procedure introduced in
+      <a href="https://github.com/PRBonn/SHINE_mapping">SHINE-Mapping</a>.
+    </p>
+    <div class="quick-links">
+      <a class="btn" href="https://github.com/JoseMaese/mapping_metrics"><span class="dot"></span>Repository</a>
+      <a class="btn" href="#docker"><span class="dot"></span>Install with Docker</a>
+      <a class="btn" href="#evaluation"><span class="dot"></span>See Metrics</a>
+    </div>
+  </section>
 
-  <h2>Evaluation Code</h2>
-  <p>
-    The evaluation script reads predicted meshes (<code>.ply</code>, <code>.pcd</code>, <code>.stl</code>)
-    and ground-truth point clouds, aligns them using multiscale ICP, applies optional bounding-box
-    cropping, and computes metrics such as <strong>Chamfer L1/L2</strong>, mean absolute error,
-    precision, recall, and F-score. Helper functions handle KD-tree nearest-neighbor queries,
-    random sampling, and colored visualization of errors.
-  </p>
+  <section class="section" id="evaluation">
+    <h2>Evaluation Code</h2>
+    <div class="grid">
+      <article class="card span-6">
+        <p>
+          The evaluation script loads predicted meshes (<code>.ply</code>, <code>.pcd</code>, <code>.stl</code>) and
+          ground-truth point clouds, aligns them using multi-scale ICP, applies optional bounding-box cropping,
+          and computes metrics such as <strong>Chamfer L1/L2</strong>, mean absolute error,
+          precision, recall, and F-score.
+        </p>
+        <details>
+          <summary>Implementation details</summary>
+          <ul>
+            <li>Multi-scale ICP with voxel pyramid and point-to-plane estimation.</li>
+            <li>Optional ground-truth AABB cropping to reduce outliers from partial coverage.</li>
+            <li>Nearest-neighbor queries with KD-tree and uniform/Poisson sampling.</li>
+          </ul>
+        </details>
+      </article>
+      <article class="card span-6">
+        <p>
+          The pipeline is designed for large-scale LiDAR datasets and is fully reproducible.
+          A Docker recipe with pinned dependencies is provided for consistent results.
+        </p>
+        <details>
+          <summary>Recommended practices</summary>
+          <ul>
+            <li>Set a fixed <code>seed</code> for random sampling and ordering.</li>
+            <li>Export metrics to CSV and log the evaluation configuration.</li>
+            <li>Visualize distributions (not only means) to capture variance.</li>
+          </ul>
+        </details>
+      </article>
+    </div>
+  </section>
 
-  <h2>Install using Docker</h2>
-  <p>
-    Follow these steps to build and run <strong>mapping_metrics</strong> inside a Docker container:
-  </p>
+  <section class="section" id="docker">
+    <h2>Install using Docker</h2>
 
-  <p>Clone the repository:</p>
-  <pre>git clone https://github.com/robotics-upo/mapping_metrics.git
-cd mapping_metrics</pre>
+    <div class="block-head">
+      <div class="label">Clone the repository</div>
+      <button class="copy" data-copy="git clone https://github.com/JoseMaese/mapping_metrics.git
+cd mapping_metrics">Copy</button>
+    </div>
+    <pre><code>git clone https://github.com/JoseMaese/mapping_metrics.git
+cd mapping_metrics</code></pre>
 
-  <p>Build the Docker image:</p>
-  <pre>docker build -t mapping_metrics .</pre>
+    <div class="block-head">
+      <div class="label">Build the Docker image</div>
+      <button class="copy" data-copy="docker build -t mapping_metrics .">Copy</button>
+    </div>
+    <pre><code>docker build -t mapping_metrics .</code></pre>
 
-  <p>Allow Docker to access the X server if GUI visualization is required:</p>
-  <pre>xhost +local:docker</pre>
+    <div class="block-head">
+      <div class="label">Allow X server access (if GUI is required)</div>
+      <button class="copy" data-copy="xhost +local:docker">Copy</button>
+    </div>
+    <pre><code>xhost +local:docker</code></pre>
 
-  <p>Run the container:</p>
-  <pre>docker run -it \
-  --env="DISPLAY" \
-  --env="QT_X11_NO_MITSHM=1" \
-  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
-  --name mapping_metrics_container \
-  mapping_metrics</pre>
+    <div class="block-head">
+      <div class="label">Run the container</div>
+      <button class="copy" data-copy="docker run -it \
+  --env=DISPLAY \
+  --env=QT_X11_NO_MITSHM=1 \
+  --volume=/tmp/.X11-unix:/tmp/.X11-unix:rw \
+  --name=mapping_metrics_container \
+  mapping_metrics">Copy</button>
+    </div>
+    <pre><code>docker run -it \
+  --env=DISPLAY \
+  --env=QT_X11_NO_MITSHM=1 \
+  --volume=/tmp/.X11-unix:/tmp/.X11-unix:rw \
+  --name=mapping_metrics_container \
+  mapping_metrics</code></pre>
 
-  <p>
-    The Dockerfile sets up the full Python environment and installs all dependencies automatically,
-    allowing direct execution of the evaluation scripts inside the container.
-  </p>
-</section>
+    <p class="lead">
+      The Dockerfile sets up the full Python environment and installs all dependencies automatically,
+      allowing direct execution of the evaluation scripts inside the container.
+    </p>
+  </section>
+</main>
 
-<footer>
-  2025 Mapping Metrics ·
-  <a href="https://github.com/robotics-upo/mapping_metrics">Project Repository</a>
+<footer class="footer">
+  © 2025 Mapping Metrics · <a href="https://github.com/JoseMaese/mapping_metrics">Project Repository</a>
 </footer>
+
+<script>
+  // Copy buttons
+  document.querySelectorAll('.copy').forEach(btn=>{
+    btn.addEventListener('click', async ()=>{
+      const text = btn.getAttribute('data-copy');
+      try{
+        await navigator.clipboard.writeText(text);
+        const old = btn.textContent;
+        btn.textContent = 'Copied';
+        setTimeout(()=>btn.textContent=old, 1400);
+      }catch(e){
+        alert('Clipboard copy failed. Please copy manually.');
+      }
+    });
+  });
+
+  // Smooth scrolling for internal links
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', e=>{
+      const id = a.getAttribute('href');
+      const el = document.querySelector(id);
+      if(el){
+        e.preventDefault();
+        el.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  });
+</script>
 
 </body>
 </html>
