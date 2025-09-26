@@ -1,10 +1,13 @@
+<h1 align="center"><a href="https://JoseMaese.github.io/mapping_metrics/" style="text-decoration:none;color:inherit;">Mapping Metrics</a></h1>
+
 <p align="center">
-  <a href="https://JoseMaese.github.io/mapping_metrics/">
-    <img alt="Open website" src="https://img.shields.io/badge/OPEN%20WEBSITE-003771?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=faba13">
+  <a href="https://JoseMaese.github.io/mapping_metrics/" style="
+    display:inline-block;padding:10px 18px;
+    border:2px solid #003771;border-radius:999px;
+    color:#003771;text-decoration:none;font-weight:600;">
+    Visit website →
   </a>
 </p>
-
-<h1 align="center"><a href="https://JoseMaese.github.io/mapping_metrics/" style="text-decoration:none;color:inherit;">Mapping Metrics</a></h1>
 
 This repository provides Python utilities to evaluate **runtime efficiency** and **3D reconstruction quality** for TSDF-based mapping methods.
 The [DB-TSDF paper](https://arxiv.org/html/2509.20081v1) uses these evaluation utilities, and the source code is available on [GitHub](https://github.com/robotics-upo/DB-TSDF).
