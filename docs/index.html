@@ -11,7 +11,6 @@
 <meta property="og:description" content="Runtime and mapping quality evaluation for TSDF methods with reproducible metrics and Docker workflow." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://JoseMaese.github.io/mapping_metrics/" />
-<!-- Important for color schemes -->
 <meta name="color-scheme" content="light dark" />
 
 <style>
@@ -20,8 +19,8 @@
   --bg: #ffffff;
   --fg: #1e232b;
   --muted: #6b7280;
-  --brand: #003771;   /* azul corporativo */
-  --accent:#faba13;   /* amarillo corporativo */
+  --brand: #003771;   /* blue */
+  --accent:#faba13;   /* yellow */
   --border: #e6e8eb;
   --code-bg: #f6f8fa;
   --code-fg: #0b1220;
@@ -31,7 +30,7 @@
   --link-hover: var(--accent);
 }
 
-/* Auto dark only if no manual override */
+/* Auto dark if no manual override */
 @media (prefers-color-scheme: dark){
   :root:not([data-theme]){
     --bg: #0b0f14;
@@ -45,9 +44,13 @@
     --link: #77b1ff;
     --link-hover: var(--accent);
   }
+  :root:not([data-theme]) .hero h1,
+  :root:not([data-theme]) .section h2{
+    color: var(--accent); /* clearer titles in dark */
+  }
 }
 
-/* Manual overrides via toggle */
+/* Manual overrides */
 :root[data-theme="dark"]{
   --bg: #0b0f14;
   --fg: #e6edf3;
@@ -60,8 +63,9 @@
   --link: #77b1ff;
   --link-hover: var(--accent);
 }
-:root[data-theme="light"]{
-  /* uses the default :root light vars */
+:root[data-theme="dark"] .hero h1,
+:root[data-theme="dark"] .section h2{
+  color: var(--accent); /* yellow titles when forced dark */
 }
 
 *{box-sizing:border-box}
@@ -86,6 +90,7 @@ body{
 }
 .brand{
   display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--fg);
+  cursor: pointer; user-select: none;
 }
 .brand .logo{
   width:28px; height:28px; border-radius:6px;
@@ -105,16 +110,6 @@ body{
   text-underline-offset: 3px;
 }
 .nav a:hover{ background: rgba(0,55,113,.06); color: var(--link-hover); }
-
-/* Theme toggle button */
-.theme-toggle{
-  border:1px solid var(--border);
-  background: var(--card-bg);
-  color: var(--link);
-  padding:8px 12px; border-radius:10px; cursor:pointer;
-  margin-left:8px;
-}
-.theme-toggle:hover{ background: rgba(250,186,19,.12); color: var(--brand); }
 
 /* Hero */
 .hero{
@@ -181,7 +176,7 @@ pre{
 }
 code{ background: var(--code-bg); color: var(--code-fg); border-radius:6px; padding: 1px 6px; }
 
-/* Header for code blocks */
+/* Block headers */
 .block-head{
   display:flex; align-items:center; justify-content:space-between; gap:10px;
   margin-top: 14px;
@@ -219,9 +214,10 @@ a:hover{ color: var(--link-hover); }
 
 <header class="site-header">
   <nav class="nav">
-    <a class="brand" href="#">
+    <!-- Brand now acts as the theme toggle -->
+    <a class="brand" href="#" id="theme-switch" title="Toggle dark mode">
       <span class="logo" aria-hidden="true"></span>
-      <span class="title">Mapping Metrics</span>
+      <span class="title">Dark mode</span>
     </a>
     <div>
       <a href="#overview">Overview</a>
@@ -229,7 +225,6 @@ a:hover{ color: var(--link-hover); }
       <a href="#docker">Docker</a>
       <a href="https://github.com/JoseMaese/mapping_metrics">Code</a>
       <a href="https://robotics.upo.es/">Service Robotics Lab</a>
-      <button id="theme-toggle" class="theme-toggle" type="button">Toggle theme</button>
     </div>
   </nav>
 </header>
@@ -374,12 +369,13 @@ cd mapping_metrics</code></pre>
     });
   });
 
-  // Theme toggle button
+  // Theme toggle on brand ("Dark mode")
   (function(){
-    const btn = document.getElementById('theme-toggle');
+    const brand = document.getElementById('theme-switch');
     const root = document.documentElement;
     const key = 'mm-theme';
-    btn?.addEventListener('click', ()=>{
+    brand?.addEventListener('click', (e)=>{
+      e.preventDefault();
       const cur = root.getAttribute('data-theme');
       const next = cur === 'dark' ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
