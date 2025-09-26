@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Mapping Metrics</title>
 
-<!-- SEO / Social -->
 <meta name="description" content="Python utilities to evaluate runtime efficiency and 3D reconstruction quality for TSDF-based mapping methods." />
 <meta property="og:title" content="Mapping Metrics" />
 <meta property="og:description" content="Runtime and mapping quality evaluation for TSDF methods with reproducible metrics and Docker workflow." />
@@ -45,9 +44,7 @@
     --link-hover: var(--accent);
   }
   :root:not([data-theme]) .hero h1,
-  :root:not([data-theme]) .section h2{
-    color: var(--accent); /* clearer titles in dark */
-  }
+  :root:not([data-theme]) .section h2{ color: var(--accent); }
 }
 
 /* Manual overrides */
@@ -64,8 +61,11 @@
   --link-hover: var(--accent);
 }
 :root[data-theme="dark"] .hero h1,
-:root[data-theme="dark"] .section h2{
-  color: var(--accent); /* yellow titles when forced dark */
+:root[data-theme="dark"] .section h2{ color: var(--accent); }
+
+/* Smooth theme transitions */
+html, body, .site-header, .card, .btn, pre, code, .footer, .nav a, .brand.toggle {
+  transition: background-color .28s ease, color .28s ease, border-color .28s ease, box-shadow .28s ease;
 }
 
 *{box-sizing:border-box}
@@ -88,20 +88,43 @@ body{
   max-width: 1040px; margin: 0 auto; padding: 14px 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
 }
-.brand{
-  display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--fg);
+
+/* Brand = Theme toggle button */
+.brand.toggle{
+  display:flex; align-items:center; gap:10px;
+  text-decoration:none;
+  color: var(--fg);
   cursor: pointer; user-select: none;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: #fff;           /* light interior */
+  border: 2px solid var(--brand); /* blue outline */
 }
-.brand .logo{
-  width:28px; height:28px; border-radius:6px;
-  background: linear-gradient(135deg, var(--brand), #002244);
-  position: relative; box-shadow: var(--shadow);
+.brand.toggle .logo{
+  width:18px; height:18px; border-radius:50%;
+  background: var(--brand);
 }
-.brand .logo::after{
-  content:""; position:absolute; inset:5px;
-  background: var(--accent); opacity:.9; border-radius:4px; mix-blend-mode:multiply;
+.brand.toggle .title{ font-weight:700; letter-spacing:.2px; }
+
+/* Dark-state styling for the toggle */
+:root[data-theme="dark"] .brand.toggle{
+  background: #000;               /* black interior */
+  border-color: var(--accent);    /* yellow outline */
+  color: #fff;
 }
-.brand .title{ font-weight:700; letter-spacing:.2px; }
+:root[data-theme="dark"] .brand.toggle .logo{
+  background: var(--accent);
+}
+
+/* Auto-dark (no manual) should match the dark button look as well */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme]) .brand.toggle{
+    background:#000;
+    border-color: var(--accent);
+    color:#fff;
+  }
+  :root:not([data-theme]) .brand.toggle .logo{ background: var(--accent); }
+}
 
 /* Nav links */
 .nav a{
@@ -121,17 +144,9 @@ body{
   line-height:1.15; letter-spacing:.2px;
   color: var(--brand);
 }
-.hero p{
-  color: var(--muted); margin: 10px 0 0;
-}
+.hero p{ color: var(--muted); margin: 10px 0 0; }
 .quick-links{
-  margin-top:18px;
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-  justify-content:center; 
-  align-items:center;      
-  text-align:center;
+  margin-top:18px; display:flex; flex-wrap:wrap; gap:12px; justify-content:center; align-items:center; text-align:center;
 }
 .btn{
   display:inline-flex; align-items:center; gap:10px;
@@ -155,18 +170,13 @@ body{
 .lead{ color: var(--muted); }
 
 /* Cards */
-.grid{
-  display:grid; gap:16px;
-  grid-template-columns: repeat(12, 1fr);
-}
+.grid{ display:grid; gap:16px; grid-template-columns: repeat(12, 1fr); }
 .card{
   grid-column: span 12;
   border:1px solid var(--border); border-radius:14px; background: var(--card-bg);
   box-shadow: var(--shadow); padding:18px;
 }
-@media(min-width: 860px){
-  .span-6{ grid-column: span 6; }
-}
+@media(min-width: 860px){ .span-6{ grid-column: span 6; } }
 
 /* Code blocks */
 pre{
@@ -204,8 +214,7 @@ details + details{ margin-top: 10px; }
 summary{ cursor: pointer; font-weight:600; color: var(--brand); }
 summary::marker { color: var(--accent); }
 
-/* Small touches */
-em{ color: inherit }
+/* Links */
 a{ color: var(--link); }
 a:hover{ color: var(--link-hover); }
 </style>
@@ -214,11 +223,11 @@ a:hover{ color: var(--link-hover); }
 
 <header class="site-header">
   <nav class="nav">
-    <!-- Brand now acts as the theme toggle -->
-    <a class="brand" href="#" id="theme-switch" title="Toggle dark mode">
+    <!-- Theme toggle: brand button -->
+    <button class="brand toggle" id="theme-switch" type="button" title="Toggle theme">
       <span class="logo" aria-hidden="true"></span>
-      <span class="title">Dark mode</span>
-    </a>
+      <span class="title" id="theme-label">Dark mode</span>
+    </button>
     <div>
       <a href="#overview">Overview</a>
       <a href="#evaluation">Evaluation</a>
@@ -332,14 +341,17 @@ cd mapping_metrics</code></pre>
 </footer>
 
 <script>
-  // Apply saved theme on load
+  // Apply saved theme on load and set initial label + button style
   (function(){
     const root = document.documentElement;
     const key = 'mm-theme';
     const saved = localStorage.getItem(key);
-    if (saved === 'light' || saved === 'dark') {
-      root.setAttribute('data-theme', saved);
-    }
+    if (saved === 'light' || saved === 'dark') root.setAttribute('data-theme', saved);
+
+    const label = document.getElementById('theme-label');
+    const cur = root.getAttribute('data-theme');
+    // Label shows the action to take
+    label.textContent = (cur === 'dark') ? 'Light mode' : 'Dark mode';
   })();
 
   // Copy buttons
@@ -369,17 +381,21 @@ cd mapping_metrics</code></pre>
     });
   });
 
-  // Theme toggle on brand ("Dark mode")
+  // Theme toggle on brand button with label update
   (function(){
-    const brand = document.getElementById('theme-switch');
+    const btn = document.getElementById('theme-switch');
+    const label = document.getElementById('theme-label');
     const root = document.documentElement;
     const key = 'mm-theme';
-    brand?.addEventListener('click', (e)=>{
+
+    btn?.addEventListener('click', (e)=>{
       e.preventDefault();
       const cur = root.getAttribute('data-theme');
-      const next = cur === 'dark' ? 'light' : 'dark';
+      const next = (cur === 'dark') ? 'light' : 'dark';
       root.setAttribute('data-theme', next);
       localStorage.setItem(key, next);
+      // Update label to the next action
+      label.textContent = (next === 'dark') ? 'Light mode' : 'Dark mode';
     });
   })();
 </script>
