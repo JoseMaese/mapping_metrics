@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mapping Metrics</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #ffffff;
+  color: #333;
+  line-height: 1.7;
+}
+header {
+  text-align: center;
+  padding: 60px 20px 40px 20px;
+}
+header h1 {
+  margin: 0 0 15px 0;
+  font-size: 2.6em;
+  font-weight: 600;
+  color: #333;
+}
+header p {
+  margin-top: 10px;
+  font-size: 1.1em;
+}
+header a {
+  color: #4a69bd;
+  text-decoration: none;
+  margin: 0 10px;
+}
+header a:hover {text-decoration: underline;}
+section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 25px 40px 25px;
+}
+h2 {
+  color: #4a69bd;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 6px;
+  margin-top: 50px;
+}
+pre {
+  background: #f7f7f7;
+  color: #222;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.95em;
+}
+code {
+  background: #f7f7f7;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+footer {
+  text-align: center;
+  padding: 30px 10px;
+  color: #666;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 60px;
+}
+footer a {color:#4a69bd;text-decoration:none;}
+footer a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mapping Metrics</h1>
+  <p>
+    <a href="https://github.com/robotics-upo/DB-TSDF">DB-TSDF GitHub</a> ·
+    <a href="https://arxiv.org/html/2509.20081v1">DB-TSDF Paper</a> ·
+    <a href="https://robotics.upo.es/">Service Robotics Lab</a>
+  </p>
+</header>
+
+<section>
+  <h2>Overview</h2>
+  <p>
+    This repository provides Python utilities to evaluate <strong>runtime efficiency</strong> and
+    <strong>3D reconstruction quality</strong> for TSDF-based mapping methods.
+    The <a href="https://arxiv.org/html/2509.20081v1">DB-TSDF paper</a> uses these
+    evaluation utilities. They are adapted from the metric-evaluation procedure introduced in
+    <a href="https://github.com/PRBonn/SHINE_mapping">SHINE-Mapping</a>.
+  </p>
+
+  <h2>Evaluation Code</h2>
+  <p>
+    The evaluation script reads predicted meshes (<code>.ply</code>, <code>.pcd</code>, <code>.stl</code>)
+    and ground-truth point clouds, aligns them using multiscale ICP, applies optional bounding-box
+    cropping, and computes metrics such as <strong>Chamfer L1/L2</strong>, mean absolute error,
+    precision, recall, and F-score. Helper functions handle KD-tree nearest-neighbor queries,
+    random sampling, and colored visualization of errors.
+  </p>
+
+  <h2>Install using Docker</h2>
+  <p>
+    Follow these steps to build and run <strong>mapping_metrics</strong> inside a Docker container:
+  </p>
+
+  <p>Clone the repository:</p>
+  <pre>git clone https://github.com/robotics-upo/mapping_metrics.git
+cd mapping_metrics</pre>
+
+  <p>Build the Docker image:</p>
+  <pre>docker build -t mapping_metrics .</pre>
+
+  <p>Allow Docker to access the X server if GUI visualization is required:</p>
+  <pre>xhost +local:docker</pre>
+
+  <p>Run the container:</p>
+  <pre>docker run -it \
+  --env="DISPLAY" \
+  --env="QT_X11_NO_MITSHM=1" \
+  --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+  --name mapping_metrics_container \
+  mapping_metrics</pre>
+
+  <p>
+    The Dockerfile sets up the full Python environment and installs all dependencies automatically,
+    allowing direct execution of the evaluation scripts inside the container.
+  </p>
+</section>
+
+<footer>
+  2025 Mapping Metrics ·
+  <a href="https://github.com/robotics-upo/mapping_metrics">Project Repository</a>
+</footer>
+
+</body>
+</html>
